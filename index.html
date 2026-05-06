@@ -244,7 +244,7 @@
 
     .hero-name {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(32px, 6vw, 76px);
+      font-size: clamp(28px, 5.5vw, 76px);
       font-weight: 800;
       line-height: 1.05;
       color: var(--text);
@@ -844,6 +844,9 @@
       transform: translateY(-2px);
     }
 
+    /* Desktop line break in hero name — hidden on mobile */
+    .desktop-br { display: block; }
+
     /* Spinner animation for send button */
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -881,8 +884,17 @@
 
       .section { padding: 60px 0; }
 
-      .hero-inner { padding: 40px 20px 60px; gap: 32px; }
-      .hero-name { font-size: clamp(20px, 9vw, 35px); word-break: break-word; }
+      .hero-inner { padding: 40px 16px 60px; gap: 32px; }
+      .hero-name {
+        font-size: clamp(20px, 7vw, 34px);
+        word-break: normal;
+        overflow-wrap: normal;
+        white-space: nowrap;
+        letter-spacing: -0.03em;
+        width: 100%;
+        text-align: center;
+      }
+      .desktop-br { display: none; }
       .hero-tagline { font-size: 14px; }
       .hero-photo-frame { max-width: 100%; border-radius: 12px; }
       .hero-badge { display: none; }
@@ -965,7 +977,7 @@
       <!-- Left: Text -->
       <div class="hero-text reveal">
         <span class="hero-greeting">Hello! My name is</span>
-        <h1 class="hero-name">GHANSHYAM<br>VERMA</h1>
+        <h1 class="hero-name">GHANSHYAM<br class="desktop-br"> VERMA</h1>
         <p class="hero-tagline">A professional Web & UI/UX Designer and AI/ML Enthusiast.</p>
         <div class="hero-cta">
           <a href="https://drive.google.com/file/d/19om5nK-tfX4GoXeRvwEYUaaXh3NJeMPS/view?usp=sharing"
