@@ -244,9 +244,9 @@
 
     .hero-name {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(40px, 7vw, 76px);
+      font-size: clamp(32px, 6vw, 76px);
       font-weight: 800;
-      line-height: 1.0;
+      line-height: 1.05;
       color: var(--text);
       margin-bottom: 18px;
       letter-spacing: -0.02em;
@@ -844,6 +844,9 @@
       transform: translateY(-2px);
     }
 
+    /* Spinner animation for send button */
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* =============================================
        RESPONSIVE — TABLET
        ============================================= */
@@ -851,10 +854,11 @@
       .hero-inner {
         grid-template-columns: 1fr;
         text-align: center;
-        gap: 50px;
+        gap: 40px;
       }
       .hero-text { order: 2; }
-      .hero-photo-wrap { order: 1; justify-content: center; }
+      .hero-photo-wrap { order: 1; justify-content: center; max-width: 480px; margin: 0 auto; width: 100%; }
+      .hero-photo-frame { max-width: 100%; }
       .hero-tagline { margin: 0 auto 40px; }
       .hero-cta { justify-content: center; }
 
@@ -877,7 +881,10 @@
 
       .section { padding: 60px 0; }
 
-      .hero-name { font-size: 42px; }
+      .hero-inner { padding: 40px 20px 60px; gap: 32px; }
+      .hero-name { font-size: clamp(28px, 9vw, 42px); word-break: break-word; }
+      .hero-tagline { font-size: 14px; }
+      .hero-photo-frame { max-width: 100%; border-radius: 12px; }
       .hero-badge { display: none; }
 
       .services-grid { grid-template-columns: 1fr; }
@@ -1010,7 +1017,7 @@
           functionally seamless.<br><br>
           My core expertise lies in UI/UX Design with Figma and visual design with Webflow. I am 
           currently expanding into the world of Data Science, actively building skills in Data Cleaning, 
-          Data Analysis, Power BI, Excel, and SQL — to bridge the gap between 
+          Data Analysis, Power BI, Excel, and SQL — with a goal of bridging the gap between 
           design thinking and data-driven decision making.<br><br>
           Always learning, always evolving — I stay at the cutting edge of design trends and emerging 
           technologies to deliver solutions that truly stand out.
@@ -1441,13 +1448,14 @@
     reveals.forEach(el => revealObserver.observe(el));
 
     /* -------------------------------------------------------
-       4. CONTACT FORM — mailto fallback + toast
+       4. CONTACT FORM — Formspree (emails go to Gmail directly)
     ------------------------------------------------------- */
-    function handleSubmit() {
+    async function handleSubmit() {
       const name    = document.getElementById('name').value.trim();
       const email   = document.getElementById('email').value.trim();
       const subject = document.getElementById('subject').value.trim();
       const message = document.getElementById('message').value.trim();
+      const btn     = document.querySelector('.form-submit .btn');
 
       // Basic validation
       if (!name || !email || !message) {
@@ -1459,17 +1467,49 @@
         return;
       }
 
-      // Open mailto (works without a backend — free hosting friendly)
-      const body = `Hi Ghanshyam,%0D%0A%0D%0AMy name is ${encodeURIComponent(name)}.%0D%0A%0D%0A${encodeURIComponent(message)}%0D%0A%0D%0AReply to: ${encodeURIComponent(email)}`;
-      window.location.href = `mailto:ghanshyamofficial212@gmail.com?subject=${encodeURIComponent(subject || 'Portfolio Inquiry')}&body=${body}`;
+      // Disable button + show loading
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24" style="animation:spin 0.8s linear infinite">
+        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+      </svg> Sending...`;
 
-      // Clear form
-      document.getElementById('name').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('subject').value = '';
-      document.getElementById('message').value = '';
+      try {
+        const response = await fetch('https://formspree.io/f/mbdwykjb', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            subject: subject || 'Portfolio Inquiry',
+            message: message
+          })
+        });
 
-      showToast('✓ Opening your email client...');
+        if (response.ok) {
+          // Clear form on success
+          document.getElementById('name').value    = '';
+          document.getElementById('email').value   = '';
+          document.getElementById('subject').value = '';
+          document.getElementById('message').value = '';
+          showToast('✅ Message sent! I\'ll get back to you soon.');
+        } else {
+          const data = await response.json();
+          const errMsg = data?.errors?.[0]?.message || 'Something went wrong. Please try again.';
+          showToast('❌ ' + errMsg, true);
+        }
+      } catch (err) {
+        showToast('❌ Network error. Please check your connection.', true);
+      } finally {
+        // Restore button
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+          viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Message`;
+      }
     }
 
     function showToast(msg, isError = false) {
